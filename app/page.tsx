@@ -1,101 +1,148 @@
-import Image from "next/image";
-
+"use client";
+import FinControl from "@/components/Sidebar/FinControl";
+import TechSupport from "@/components/Sidebar/TechSupport";
+import Header from "@/components/Header/Header";
+import ContentTable from "@/components/Table/Table";
+import { AiOutlineMessage } from "react-icons/ai";
+import { MdOutlineEventNote } from "react-icons/md";
+import { RiContactsBookUploadFill } from "react-icons/ri";
+import { FaFileImport } from "react-icons/fa6";
+import { GoFileDirectoryFill } from "react-icons/go";
+import { Button, Input, Select } from "antd";
+import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { DataType, TableFilter } from "@/components/Table/Table";
+interface CategoryItem {
+  value: string;
+  label: string; 
+}
 export default function Home() {
+  const fileInputRef = useRef(null);
+  const tableRef = useRef(null)
+  const [data, setData] = useState<DataType[]>([])
+  const [downloadFlag, setDownloadFlag] = useState(0)
+  const [barcodeFilter, setBarcodeFilter] = useState('')
+  const [productFilter, setProductFilter] = useState('')
+  const [countFilter, setCountFilter] = useState(0)
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [categoryItems, setCategoryItems] = useState<CategoryItem[]>([])
+  const onFileChange = (event: ChangeEventHandler<HTMLInputElement>) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      setData(JSON.parse(e.target?.result))
+    }
+    reader.readAsText(event.target.files[0])
+  }
+  const onOpenFile = () => {
+    if ( fileInputRef && fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+  useEffect(() => {
+    let categories: CategoryItem[] = []
+    for ( let i =0; i< data.length; i++) {
+      let flag = false;
+      for ( let j =0; j<categories.length; j++) {
+        if ( data[i].product_brand == categories[j].label ) flag = true
+      }
+      if ( flag == false) categories.push({
+        label: data[i].product_brand,
+        value: data[i].product_brand
+      })
+    }
+    setCategoryItems(categories)
+  }, [data])
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="w-full grid grid-cols-5 p-[20px] gap-3">
+      <div className="flex flex-col gap-1 col-span-1">
+        <FinControl />
+        <TechSupport />
+        <Button className="bg-[#287EFF] text-white text-[18px] h-[40px] rounded-lg">
+          <AiOutlineMessage />
+          Связаться с нами
+        </Button>
+      </div>
+      <div className="col-span-4 flex flex-col gap-3">
+        <Header />
+        <div className="text-[18px] text-[#171D2C] flex gap-4 items-center">
+          Остатки сформированы на 01.04.2023г.
+          <Button className="bg-[#171D2C] text-[15px] text-white" shape="round">
+            <MdOutlineEventNote />
+            Инструкцим
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="flex gap-2">
+          <div className="bg-white rounded-lg p-2 flex gap-2 items-center">
+            Баркод
+            <Input className="bg-[#F7F8F8] rounded-lg" value={barcodeFilter} onChange={(e) => setBarcodeFilter(e.target.value)}/>
+          </div>
+          <div className="bg-white rounded-lg p-2 flex gap-2 items-center">
+            Артикул
+            <Input className="bg-[#F7F8F8] rounded-lg" value={productFilter} onChange={(e) => setProductFilter(e.target.value)}/>
+          </div>
+          <div className="bg-white rounded-lg p-2 flex gap-2 items-center">
+            Размер
+            <Input className="bg-[#F7F8F8] rounded-lg" value={countFilter} onChange={(e) => setCountFilter(parseInt(e.target.value))}/>
+          </div>
+          <div className="bg-white rounded-lg p-2 flex flex-col gap-2 items-center">
+            Категория
+            <Select
+              defaultValue="lucy"
+              style={{ width: 120 }}
+              onChange={(e: string) => { setCategoryFilter(e)}}
+              options={categoryItems}
+              className="border-transparent"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            shape="round"
+            className="text-white border-transparent bg-[#287EFF] h-[40px]"
+            onClick={() => tableRef.current.setFilter({
+              barcode: barcodeFilter,
+              product_name: productFilter,
+              product_count: countFilter,
+              product_brand: categoryFilter
+            })}
+          >
+            Сформировать
+          </Button>
+          <Button
+            shape="round"
+            className="text-white border-transparent bg-[#283047] h-[40px]"
+          >
+            <RiContactsBookUploadFill />
+            экспорт
+          </Button>
+        </div>
+        <div className="flex justify-between  border-b border-t border-gray py-2">
+          <div className="flex gap-3 text-[15px] ">
+            <Button type="text" onClick={() => onOpenFile()}>
+              <FaFileImport />
+              Загрузить данные из CSV
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={onFileChange}
+            />
+            <Button type="text" onClick={() => tableRef.current.downloadCSV()}>
+              <GoFileDirectoryFill />
+              Изменить данные
+            </Button>
+          </div>
+          <div className="border-l pl-3">
+            <Button type="text">
+              очистить
+              <span className="font-bold">X</span>
+            </Button>
+          </div>
+        </div>
+        <div>
+          <ContentTable data={data} downloadFlag={downloadFlag} ref={tableRef}/>
+        </div>
+      </div>
     </div>
   );
 }
