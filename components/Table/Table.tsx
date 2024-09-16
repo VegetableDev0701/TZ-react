@@ -2,7 +2,6 @@ import { Table, TableColumnType } from "antd";
 import EditableCell from "../common/EditableCell";
 import { forwardRef, useImperativeHandle, useEffect, useState } from "react";
 export interface DataType {
-  key: React.Key;
   id: number;
   barcode: string;
   product_brand: string;
@@ -26,12 +25,16 @@ interface SorterResult {
   field?: string;
   order?: "ascend" | "descend" | null;
 }
-export default forwardRef((props: TableProps, ref) => {
-  const columns: TableColumnType<DataType> = [
+export interface TableComponentRefType {
+  downloadCSV: () => void;
+  setFilter: (filter: TableFilter) => void;
+}
+export default forwardRef<TableComponentRefType, TableProps>((props, ref) => {
+  const columns: TableColumnType<DataType>[] = [
     {
       title: "id",
       dataIndex: "id",
-      sorter: (a: number, b: number) => a - b,
+      sorter: (a: DataType, b: DataType) => a.id - b.id,
       sortDirections: ["descend", "ascend"],
       width: 20
     },
@@ -126,6 +129,7 @@ export default forwardRef((props: TableProps, ref) => {
     setOriginalData([...originalData])
   };
   useEffect(() => {
+    if ( props.downloadFlag == 0 ) return;
     onDownloadCSV()
   }, [props.downloadFlag])
   useImperativeHandle(ref, () => ({
@@ -165,7 +169,7 @@ export default forwardRef((props: TableProps, ref) => {
       </div>
     )
   }
-  return <Table columns={columns} dataSource={tableData} pagination={false} scroll={
+  return <Table<DataType> columns={columns} dataSource={tableData} pagination={false} scroll={
     {
       scrollToFirstRowOnChange: true,
       y: 400
